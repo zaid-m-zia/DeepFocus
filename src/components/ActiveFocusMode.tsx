@@ -3,6 +3,7 @@ import { FocusSession, Task, AmbientSoundType } from '../types';
 import { playChime, playWarning, triggerHaptic, startAmbient, stopAmbient } from '../utils/audio';
 import confetti from 'canvas-confetti';
 import { Volume2, VolumeX } from 'lucide-react';
+import { ZenFlowCanvas } from './ZenFlowCanvas';
 
 interface ActiveFocusModeProps {
   plannedDurationMin: number;
@@ -204,6 +205,9 @@ export const ActiveFocusMode: React.FC<ActiveFocusModeProps> = ({
       {/* Static Background Dot Matrix Pattern */}
       <div className="dot-grid-bg" aria-hidden="true" />
 
+      {/* Zen Mind-Relaxing Flow Canvas for Free Space Tracing & Writing */}
+      {!isCompleted && <ZenFlowCanvas />}
+
       {/* Top Bar: Minimal Status Row */}
       <div className="flex items-center justify-between w-full max-w-md mx-auto pt-2 text-xs font-mono relative z-10">
         <div className="flex items-center gap-2" style={{ color: 'var(--sub)' }}>
@@ -274,6 +278,9 @@ export const ActiveFocusMode: React.FC<ActiveFocusModeProps> = ({
                   task: {linkedTask.title}
                 </div>
               )}
+              <div className="pt-2 text-[10px] font-mono select-none transition-opacity opacity-40 hover:opacity-80" style={{ color: 'var(--sub)' }}>
+                ~ trace finger anywhere to release thoughts ~
+              </div>
             </div>
           </div>
         ) : (
