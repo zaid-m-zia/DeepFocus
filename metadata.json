@@ -1,0 +1,6 @@
+{
+  "name": "DeepFocus",
+  "description": "A distraction-free, editorial study-focus Progressive Web App with tabular numeral timer, zero visual noise, multi-palette theme engine, anonymous Firebase cloud backup, and task manager.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

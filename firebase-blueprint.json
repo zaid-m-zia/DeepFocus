@@ -1,0 +1,41 @@
+{
+  "entities": {
+    "UserBackup": {
+      "title": "UserBackup",
+      "description": "User focus sessions, streaks, task list, badges, and dashboard stats tied to their authenticated UID",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Authenticated Firebase user UID" },
+        "recoveryCode": { "type": "string", "description": "Human-readable recovery code format DF-XXXX-XXXX" },
+        "streak": { "type": "object", "description": "Current and best study streak state" },
+        "sessions": { "type": "array", "description": "Array of logged focus sessions" },
+        "tasks": { "type": "array", "description": "Array of user study tasks" },
+        "badges": { "type": "array", "description": "Array of earned and in-progress discipline badges" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of the last cloud sync" }
+      },
+      "required": ["uid", "recoveryCode"]
+    },
+    "RecoveryCode": {
+      "title": "RecoveryCode",
+      "description": "Lookup document linking a unique DF-XXXX-XXXX recovery code to a user UID and snapshot for cross-device restoration",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string", "description": "Recovery code in format DF-XXXX-XXXX" },
+        "uid": { "type": "string", "description": "Owner Firebase user UID" },
+        "backupData": { "type": "object", "description": "Snapshot of user data for quick restore" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of when the code was created or synced" }
+      },
+      "required": ["code", "uid"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserBackup",
+      "description": "Private user study data collection indexed strictly by user UID"
+    },
+    "/recoveryCodes/{code}": {
+      "schema": "RecoveryCode",
+      "description": "Lookup collection for user recovery codes"
+    }
+  }
+}

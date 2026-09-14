@@ -1,0 +1,824 @@
+// Self-contained Single-File HTML exporter for AirDrop to iPhone & Safari offline install
+export function getStandaloneDeepFocusHtml(): string {
+  return `<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>DeepFocus</title>
+  
+  <!-- Apple & PWA Meta Tags for Native Fullscreen Feel -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DeepFocus">
+  <meta name="theme-color" content="#090d16">
+  <meta name="color-scheme" content="dark">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- Embedded Web App Manifest via Data URI -->
+  <link rel="manifest" href='data:application/manifest+json;utf-8,{"name":"DeepFocus","short_name":"DeepFocus","start_url":".","display":"standalone","background_color":"%23090d16","theme_color":"%23090d16","icons":[{"src":"data:image/svg+xml;utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2225%22 fill=%22%231e1b4b%22/%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2232%22 fill=%22none%22 stroke=%22%236366f1%22 stroke-width=%228%22/%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23818cf8%22/%3E%3C/svg%3E","sizes":"any","type":"image/svg+xml"}]}'>
+
+  <!-- Inline Apple Touch Icon -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml;utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2225%22 fill=%22%231e1b4b%22/%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2232%22 fill=%22none%22 stroke=%22%236366f1%22 stroke-width=%228%22/%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23818cf8%22/%3E%3C/svg%3E">
+
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #131b2e;
+      --card-border: #1e293b;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      overflow-x: hidden;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+    }
+    #app-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+      padding-top: max(12px, var(--sat));
+      padding-bottom: max(80px, calc(var(--sab) + 65px));
+      position: relative;
+    }
+    header {
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #4f46e5, #818cf8);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+    .nav-tabs {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 12px calc(max(10px, var(--sab)));
+      z-index: 40;
+    }
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 6px 16px;
+      border-radius: 12px;
+      transition: all 0.15s ease;
+    }
+    .nav-btn.active {
+      color: var(--primary);
+    }
+    .nav-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .content-area { padding: 8px 20px; flex: 1; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 12px 20px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 16px rgba(99,102,241,0.35); width: 100%; }
+    .btn-outline { background: transparent; border: 1px solid var(--card-border); color: var(--text); }
+    .btn-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; }
+    
+    /* Fullscreen Focus Mode */
+    #focus-overlay {
+      position: fixed;
+      inset: 0;
+      background: #060911;
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: max(24px, var(--sat)) 24px max(32px, var(--sab));
+      text-align: center;
+    }
+    #focus-overlay.active { display: flex; }
+    .timer-circle {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .timer-text {
+      position: absolute;
+      font-size: 3.8rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      font-variant-numeric: tabular-nums;
+    }
+    .tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .tag-p1 { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .tag-p2 { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .tag-p3 { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .tag-p4 { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <div id="app-container">
+    <header id="main-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+        </div>
+        <span>DeepFocus</span>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span id="streak-chip" class="tag" style="background:#1e1b4b; color:#c7d2fe; border:1px solid #3730a3;">🔥 <span id="header-streak-num">4</span> Days</span>
+      </div>
+    </header>
+
+    <!-- Tab 1: Focus -->
+    <section id="tab-focus" class="content-area">
+      <div class="card" style="text-align:center;">
+        <span style="font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">Session Duration</span>
+        <div style="display:flex; justify-content:center; gap:8px; margin:16px 0;">
+          <button class="btn btn-outline dur-preset" data-min="15" style="padding:8px 12px; font-size:0.85rem;">15m</button>
+          <button class="btn btn-outline dur-preset" data-min="25" style="padding:8px 12px; font-size:0.85rem; border-color:var(--primary); color:white; background:rgba(99,102,241,0.15);">25m</button>
+          <button class="btn btn-outline dur-preset" data-min="50" style="padding:8px 12px; font-size:0.85rem;">50m</button>
+          <button class="btn btn-outline dur-preset" data-min="90" style="padding:8px 12px; font-size:0.85rem;">90m</button>
+        </div>
+        <div style="font-size:2.8rem; font-weight:800; color:#818cf8; margin-bottom:12px;" id="selected-duration-label">25:00</div>
+        
+        <div style="text-align:left; margin-bottom:16px;">
+          <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Current Goal / Target</label>
+          <input type="text" id="goal-input" placeholder="e.g. Cognitive Psychology Study, Math PS3" style="width:100%; padding:12px 14px; background:#0b1120; border:1px solid var(--card-border); border-radius:12px; color:white; font-size:0.95rem; outline:none;" value="Deep Study Block">
+        </div>
+
+        <div style="text-align:left; margin-bottom:20px;">
+          <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Link to Task (Optional)</label>
+          <select id="task-select" style="width:100%; padding:12px; background:#0b1120; border:1px solid var(--card-border); border-radius:12px; color:white; font-size:0.9rem; outline:none;">
+            <option value="">-- None (General Focus) --</option>
+          </select>
+        </div>
+
+        <button id="start-focus-btn" class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Enter Deep Focus
+        </button>
+      </div>
+
+      <div class="card" style="display:flex; align-items:center; justify-content:space-between; padding:14px 20px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:36px; height:36px; border-radius:10px; background:#1e293b; display:grid; place-items:center;">🎧</div>
+          <div>
+            <div style="font-size:0.9rem; font-weight:600;">Ambient Focus Audio</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Web Audio synthesizer (no internet needed)</div>
+          </div>
+        </div>
+        <select id="ambient-select" style="background:#090d16; color:white; border:1px solid var(--card-border); padding:6px 10px; border-radius:8px; font-size:0.85rem;">
+          <option value="off">Off</option>
+          <option value="rain">Gentle Rain</option>
+          <option value="whitenoise">White Noise</option>
+          <option value="binaural">Alpha Beat</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Tab 2: Dashboard -->
+    <section id="tab-dashboard" class="content-area hidden">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+        <div class="card" style="padding:16px; margin:0;">
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">DAILY STREAK</div>
+          <div style="font-size:1.8rem; font-weight:800; color:#fbbf24; margin-top:4px;">🔥 <span id="dash-streak">4</span> Days</div>
+          <div style="font-size:0.72rem; color:#94a3b8; margin-top:4px;">Personal best: <span id="dash-best-streak">4</span></div>
+        </div>
+        <div class="card" style="padding:16px; margin:0;">
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">HOURS FOCUSED</div>
+          <div style="font-size:1.8rem; font-weight:800; color:#818cf8; margin-top:4px;"><span id="dash-total-hours">6.5</span>h</div>
+          <div style="font-size:0.72rem; color:#94a3b8; margin-top:4px;"><span id="dash-sessions-count">7</span> completed sessions</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <span style="font-weight:700; font-size:0.95rem;">Focus Activity (Last 7 Days)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Hours / Day</span>
+        </div>
+        <div id="chart-bars" style="display:flex; align-items:flex-end; justify-content:space-between; height:120px; padding-top:10px;">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <div class="card">
+        <span style="font-weight:700; font-size:0.95rem; display:block; margin-bottom:12px;">Earnable Streak Badges</span>
+        <div id="badges-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <!-- Badges -->
+        </div>
+      </div>
+
+      <div class="card">
+        <span style="font-weight:700; font-size:0.95rem; display:block; margin-bottom:12px;">Session History</span>
+        <div id="history-list" style="display:flex; flex-direction:column; gap:8px;">
+          <!-- Sessions -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Tasks -->
+    <section id="tab-tasks" class="content-area hidden">
+      <div class="card" style="padding:14px;">
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="new-task-input" placeholder="Add study task (e.g. Read Bio Ch. 4)..." style="flex:1; background:#0b1120; border:1px solid var(--card-border); border-radius:10px; padding:10px 12px; color:white; font-size:0.9rem; outline:none;">
+          <select id="new-task-priority" style="background:#0b1120; border:1px solid var(--card-border); border-radius:10px; color:white; padding:0 8px; font-size:0.8rem;">
+            <option value="p1">P1 Urgent</option>
+            <option value="p2">P2 High</option>
+            <option value="p3" selected>P3 Med</option>
+            <option value="p4">P4 Normal</option>
+          </select>
+          <button id="add-task-btn" class="btn btn-primary" style="width:auto; padding:8px 14px; font-size:0.85rem;">Add</button>
+        </div>
+      </div>
+
+      <div id="tasks-list" style="display:flex; flex-direction:column; gap:10px;">
+        <!-- Tasks rendered here -->
+      </div>
+    </section>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="nav-tabs" id="bottom-nav">
+      <button class="nav-btn active" data-tab="focus">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+        Focus
+      </button>
+      <button class="nav-btn" data-tab="dashboard">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-btn" data-tab="tasks">
+        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Tasks
+      </button>
+    </nav>
+  </div>
+
+  <!-- Fullscreen Focus Mode (All navigation strictly hidden) -->
+  <div id="focus-overlay">
+    <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
+      <div class="tag" style="background:#1e1b4b; color:#818cf8; border:1px solid #3730a3;">
+        <span style="width:6px; height:6px; background:#818cf8; border-radius:50%; display:inline-block; margin-right:4px;"></span>
+        STUDY FOCUS ACTIVE
+      </div>
+      <div id="distraction-counter-tag" class="tag" style="background:#0f172a; color:#94a3b8; border:1px solid #1e293b;">
+        0 Distractions
+      </div>
+    </div>
+
+    <!-- Distraction Warning Banner (Page Visibility API) -->
+    <div id="distraction-alert" style="display:none; background:rgba(239, 68, 68, 0.2); border:1px solid #ef4444; border-radius:14px; padding:12px; width:100%; margin:10px 0; text-align:left;">
+      <div style="color:#f87171; font-weight:700; font-size:0.9rem; display:flex; align-items:center; gap:6px;">
+        ⚠️ Distraction Detected!
+      </div>
+      <div style="color:#fecaca; font-size:0.8rem; margin-top:3px;">
+        You switched tabs or left DeepFocus. The timer was paused and this infraction was logged. Stay on this screen to preserve your study streak!
+      </div>
+      <button id="dismiss-distraction-btn" class="btn btn-primary" style="margin-top:8px; padding:6px 12px; font-size:0.8rem; width:auto; background:#dc2626;">Resume Focus</button>
+    </div>
+
+    <div style="display:flex; flex-direction:column; align-items:center;">
+      <div class="timer-circle">
+        <svg width="260" height="260" style="transform:rotate(-90deg);">
+          <circle cx="130" cy="130" r="115" stroke="#1e293b" stroke-width="12" fill="none"/>
+          <circle id="timer-progress-ring" cx="130" cy="130" r="115" stroke="#6366f1" stroke-width="12" fill="none" stroke-dasharray="722" stroke-dashoffset="0" stroke-linecap="round"/>
+        </svg>
+        <div class="timer-text" id="active-countdown">25:00</div>
+      </div>
+      <div id="active-goal-text" style="font-size:1.15rem; font-weight:700; max-width:320px; line-height:1.4;">Study Session</div>
+      <div id="active-task-text" style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;"></div>
+    </div>
+
+    <!-- Only Visible Exit Control -->
+    <div style="width:100%; max-width:320px;">
+      <button id="end-early-btn" class="btn btn-danger" style="width:100%;">
+        End Session Early
+      </button>
+    </div>
+  </div>
+
+  <!-- End Early Confirmation Modal -->
+  <div id="quit-modal" style="position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:150; display:none; align-items:center; justify-content:center; padding:20px;">
+    <div class="card" style="max-width:360px; width:100%; text-align:center; padding:24px; border:1px solid #7f1d1d;">
+      <div style="font-size:2.5rem; margin-bottom:8px;">⚠️</div>
+      <h3 style="font-size:1.2rem; font-weight:700; color:#f87171; margin-bottom:8px;">Break Your Streak?</h3>
+      <p style="font-size:0.85rem; color:#cbd5e1; line-height:1.5; margin-bottom:20px;">
+        Ending early counts as an incomplete session. Your study streak will break and no badges will be earned. Are you sure you want to stop now?
+      </p>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button id="cancel-quit-btn" class="btn btn-primary">Keep Focusing</button>
+        <button id="confirm-quit-btn" class="btn btn-outline" style="color:#ef4444; border-color:#7f1d1d;">Confirm Early Exit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Synthesizer & Application Logic -->
+  <script>
+    (function() {
+      // Audio Synth
+      let audioCtx = null;
+      function getCtx() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+      }
+      function playTone(freq, dur, type='sine') {
+        try {
+          const ctx = getCtx();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          gain.gain.setValueAtTime(0.12, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + dur);
+        } catch(e) {}
+      }
+      function playCelebration() {
+        [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playTone(f, 0.4), i * 120));
+      }
+
+      // Storage Keys
+      const TASKS_KEY = 'deepfocus_tasks_v2';
+      const SESSIONS_KEY = 'deepfocus_sessions_v2';
+      const STREAK_KEY = 'deepfocus_streak_v2';
+
+      try {
+        localStorage.removeItem('deepfocus_tasks_v1');
+        localStorage.removeItem('deepfocus_sessions_v1');
+        localStorage.removeItem('deepfocus_streak_v1');
+      } catch (e) {}
+
+      // Load data with empty defaults (no mock data)
+      let tasks = JSON.parse(localStorage.getItem(TASKS_KEY) || '[]');
+      let sessions = JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]');
+      let streak = JSON.parse(localStorage.getItem(STREAK_KEY) || 'null') || { currentStreak: 0, bestStreak: 0, lastActiveDate: null };
+
+      // State
+      let activeTab = 'focus';
+      let selectedMinutes = 25;
+      let timerInterval = null;
+      let secondsLeft = 25 * 60;
+      let totalSeconds = 25 * 60;
+      let currentSessionStartTime = null;
+      let distractionsCount = 0;
+      let isFocusRunning = false;
+      let isPausedForDistraction = false;
+
+      // DOM Elements
+      const navBtns = document.querySelectorAll('.nav-btn');
+      const tabs = {
+        focus: document.getElementById('tab-focus'),
+        dashboard: document.getElementById('tab-dashboard'),
+        tasks: document.getElementById('tab-tasks')
+      };
+      const focusOverlay = document.getElementById('focus-overlay');
+      const activeCountdown = document.getElementById('active-countdown');
+      const timerRing = document.getElementById('timer-progress-ring');
+      const distractionCounterTag = document.getElementById('distraction-counter-tag');
+      const distractionAlert = document.getElementById('distraction-alert');
+      const quitModal = document.getElementById('quit-modal');
+
+      function switchTab(tabId) {
+        activeTab = tabId;
+        navBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabId));
+        Object.keys(tabs).forEach(k => tabs[k].classList.toggle('hidden', k !== tabId));
+        if (tabId === 'dashboard') renderDashboard();
+        if (tabId === 'tasks') renderTasks();
+        playTone(400, 0.04);
+      }
+
+      navBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+
+      // Preset buttons
+      document.querySelectorAll('.dur-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.dur-preset').forEach(b => {
+            b.style.borderColor = 'var(--card-border)';
+            b.style.background = 'transparent';
+          });
+          btn.style.borderColor = 'var(--primary)';
+          btn.style.background = 'rgba(99,102,241,0.15)';
+          selectedMinutes = parseInt(btn.dataset.min);
+          document.getElementById('selected-duration-label').textContent = selectedMinutes + ':00';
+          playTone(500, 0.05);
+        });
+      });
+
+      // Populate task select
+      function updateTaskSelect() {
+        const sel = document.getElementById('task-select');
+        sel.innerHTML = '<option value="">-- None (General Focus) --</option>';
+        tasks.filter(t => !t.completed).forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t.id;
+          opt.textContent = t.title;
+          sel.appendChild(opt);
+        });
+      }
+      updateTaskSelect();
+
+      // Start Focus Mode
+      document.getElementById('start-focus-btn').addEventListener('click', () => {
+        getCtx();
+        totalSeconds = selectedMinutes * 60;
+        secondsLeft = totalSeconds;
+        distractionsCount = 0;
+        isFocusRunning = true;
+        isPausedForDistraction = false;
+        currentSessionStartTime = new Date().toISOString();
+
+        const goal = document.getElementById('goal-input').value.trim() || 'Study Focus Block';
+        const taskId = document.getElementById('task-select').value;
+        const linkedTask = tasks.find(t => t.id === taskId);
+
+        document.getElementById('active-goal-text').textContent = goal;
+        document.getElementById('active-task-text').textContent = linkedTask ? ('Task: ' + linkedTask.title) : '';
+        distractionCounterTag.textContent = '0 Distractions';
+        distractionAlert.style.display = 'none';
+
+        // Fullscreen API attempt
+        try {
+          if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          }
+        } catch(e) {}
+
+        focusOverlay.classList.add('active');
+        playTone(600, 0.1);
+        updateTimerDisplay();
+
+        clearInterval(timerInterval);
+        timerInterval = setInterval(tickTimer, 1000);
+      });
+
+      function formatTime(secs) {
+        const m = Math.floor(secs / 60);
+        const s = secs % 60;
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+      }
+
+      function updateTimerDisplay() {
+        activeCountdown.textContent = formatTime(secondsLeft);
+        const circumference = 722;
+        const progress = (totalSeconds - secondsLeft) / totalSeconds;
+        timerRing.style.strokeDashoffset = circumference * (1 - progress);
+      }
+
+      function tickTimer() {
+        if (!isFocusRunning || isPausedForDistraction) return;
+        secondsLeft--;
+        updateTimerDisplay();
+        if (secondsLeft <= 0) {
+          completeSession();
+        }
+      }
+
+      // Page Visibility API - Distraction Detection
+      document.addEventListener('visibilitychange', () => {
+        if (isFocusRunning && document.hidden) {
+          distractionsCount++;
+          isPausedForDistraction = true;
+          distractionCounterTag.textContent = distractionsCount + ' Distraction' + (distractionsCount > 1 ? 's' : '');
+          distractionAlert.style.display = 'block';
+          playTone(250, 0.3, 'triangle');
+        }
+      });
+
+      document.getElementById('dismiss-distraction-btn').addEventListener('click', () => {
+        isPausedForDistraction = false;
+        distractionAlert.style.display = 'none';
+        playTone(500, 0.05);
+      });
+
+      // Complete session
+      function completeSession() {
+        clearInterval(timerInterval);
+        isFocusRunning = false;
+        playCelebration();
+
+        const goal = document.getElementById('goal-input').value.trim() || 'Study Focus Block';
+        const taskId = document.getElementById('task-select').value;
+        const newSession = {
+          id: 's_' + Date.now(),
+          goal: goal,
+          plannedDurationMin: selectedMinutes,
+          actualDurationSec: totalSeconds,
+          completed: true,
+          distractionsCount: distractionsCount,
+          startTime: currentSessionStartTime,
+          endTime: new Date().toISOString(),
+          taskId: taskId || undefined
+        };
+
+        sessions.unshift(newSession);
+        localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+
+        // Update streak
+        const today = new Date().toISOString().split('T')[0];
+        if (streak.lastActiveDate !== today) {
+          streak.currentStreak += 1;
+          if (streak.currentStreak > streak.bestStreak) streak.bestStreak = streak.currentStreak;
+          streak.lastActiveDate = today;
+          localStorage.setItem(STREAK_KEY, JSON.stringify(streak));
+        }
+
+        // Exit focus screen
+        focusOverlay.classList.remove('active');
+        try { if (document.exitFullscreen) document.exitFullscreen().catch(()=>{}); } catch(e) {}
+        
+        alert('🎉 Focus Session Completed! You studied for ' + selectedMinutes + ' minutes with ' + distractionsCount + ' distractions. Daily streak maintained!');
+        document.getElementById('header-streak-num').textContent = streak.currentStreak;
+      }
+
+      // Early Exit handling
+      document.getElementById('end-early-btn').addEventListener('click', () => {
+        quitModal.style.display = 'flex';
+        playTone(300, 0.1);
+      });
+      document.getElementById('cancel-quit-btn').addEventListener('click', () => {
+        quitModal.style.display = 'none';
+        playTone(500, 0.05);
+      });
+      document.getElementById('confirm-quit-btn').addEventListener('click', () => {
+        quitModal.style.display = 'none';
+        clearInterval(timerInterval);
+        isFocusRunning = false;
+        focusOverlay.classList.remove('active');
+        try { if (document.exitFullscreen) document.exitFullscreen().catch(()=>{}); } catch(e) {}
+
+        const goal = document.getElementById('goal-input').value.trim() || 'Study Focus Block';
+        sessions.unshift({
+          id: 's_' + Date.now(),
+          goal: goal,
+          plannedDurationMin: selectedMinutes,
+          actualDurationSec: totalSeconds - secondsLeft,
+          completed: false,
+          distractionsCount: distractionsCount + 1,
+          startTime: currentSessionStartTime,
+          endTime: new Date().toISOString()
+        });
+        localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+        playTone(200, 0.2, 'sawtooth');
+      });
+
+      // Render Dashboard
+      function renderDashboard() {
+        document.getElementById('dash-streak').textContent = streak.currentStreak;
+        document.getElementById('dash-best-streak').textContent = streak.bestStreak;
+        document.getElementById('header-streak-num').textContent = streak.currentStreak;
+
+        const completed = sessions.filter(s => s.completed);
+        const totalSecs = completed.reduce((acc, s) => acc + s.actualDurationSec, 0);
+        document.getElementById('dash-total-hours').textContent = (totalSecs / 3600).toFixed(1);
+        document.getElementById('dash-sessions-count').textContent = completed.length;
+
+        // Daily bars
+        const barsContainer = document.getElementById('chart-bars');
+        barsContainer.innerHTML = '';
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date(Date.now() - i * 86400000);
+          const dateStr = d.toISOString().split('T')[0];
+          const daySecs = completed
+            .filter(s => s.startTime && s.startTime.split('T')[0] === dateStr)
+            .reduce((acc, s) => acc + s.actualDurationSec, 0);
+          const hours = daySecs / 3600;
+          const heightPct = Math.min(100, Math.round((hours / 3) * 100));
+
+          const col = document.createElement('div');
+          col.style.display = 'flex';
+          col.style.flexDirection = 'column';
+          col.style.alignItems = 'center';
+          col.style.gap = '6px';
+          col.style.flex = '1';
+          col.innerHTML = \`
+            <span style="font-size:0.65rem; color:var(--text-muted);">\${hours > 0 ? hours.toFixed(1) + 'h' : '0'}</span>
+            <div style="width:24px; height:80px; background:#1e293b; border-radius:6px; display:flex; align-items:flex-end; overflow:hidden;">
+              <div style="width:100%; height:\${Math.max(4, heightPct)}%; background:\${i === 0 ? 'var(--primary)' : '#4338ca'}; border-radius:6px;"></div>
+            </div>
+            <span style="font-size:0.7rem; font-weight:\${i === 0 ? '700' : '500'}; color:\${i === 0 ? 'white' : 'var(--text-muted)'};">\${i === 0 ? 'Today' : dayNames[d.getDay()]}</span>
+          \`;
+          barsContainer.appendChild(col);
+        }
+
+        // Badges
+        const badgesGrid = document.getElementById('badges-grid');
+        badgesGrid.innerHTML = '';
+        const badgeList = [
+          { title: 'First Spark', desc: '1st study session', unlocked: completed.length >= 1, icon: '⚡' },
+          { title: '3-Day Streak', desc: 'Consistency champion', unlocked: streak.currentStreak >= 3, icon: '🔥' },
+          { title: '7-Day Titan', desc: 'Unbroken week', unlocked: streak.currentStreak >= 7, icon: '🏆' },
+          { title: 'Monk Focus', desc: '0 tab switches', unlocked: completed.some(s => s.distractionsCount === 0), icon: '🛡️' }
+        ];
+        badgeList.forEach(b => {
+          const item = document.createElement('div');
+          item.style.padding = '10px';
+          item.style.borderRadius = '12px';
+          item.style.background = b.unlocked ? '#1e1b4b' : '#0b1120';
+          item.style.border = '1px solid ' + (b.unlocked ? '#3730a3' : 'var(--card-border)');
+          item.style.opacity = b.unlocked ? '1' : '0.45';
+          item.innerHTML = \`
+            <div style="font-size:1.4rem;">\${b.icon}</div>
+            <div style="font-weight:700; font-size:0.85rem; margin-top:4px;">\${b.title}</div>
+            <div style="font-size:0.7rem; color:var(--text-muted);">\${b.desc}</div>
+          \`;
+          badgesGrid.appendChild(item);
+        });
+
+        // History
+        const histList = document.getElementById('history-list');
+        histList.innerHTML = '';
+        sessions.slice(0, 8).forEach(s => {
+          const row = document.createElement('div');
+          row.style.display = 'flex';
+          row.style.justifyContent = 'space-between';
+          row.style.alignItems = 'center';
+          row.style.padding = '8px 12px';
+          row.style.borderRadius = '10px';
+          row.style.background = '#0b1120';
+          row.style.fontSize = '0.85rem';
+          row.innerHTML = \`
+            <div>
+              <div style="font-weight:600;">\${s.goal}</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);">\${Math.round(s.actualDurationSec / 60)} min • \${s.distractionsCount} distractions</div>
+            </div>
+            <span class="tag \${s.completed ? 'tag-p3' : 'tag-p1'}">\${s.completed ? 'Completed' : 'Ended Early'}</span>
+          \`;
+          histList.appendChild(row);
+        });
+      }
+
+      // Render Tasks
+      function renderTasks() {
+        const list = document.getElementById('tasks-list');
+        list.innerHTML = '';
+        tasks.forEach(t => {
+          const el = document.createElement('div');
+          el.className = 'card';
+          el.style.margin = '0';
+          el.style.padding = '14px';
+          el.style.display = 'flex';
+          el.style.alignItems = 'center';
+          el.style.justifyContent = 'space-between';
+          el.style.gap = '12px';
+          el.innerHTML = \`
+            <div style="display:flex; align-items:center; gap:10px; flex:1;">
+              <input type="checkbox" class="task-check" data-id="\${t.id}" \${t.completed ? 'checked' : ''} style="width:20px; height:20px; accent-color:var(--primary); cursor:pointer;">
+              <div>
+                <div style="font-size:0.95rem; font-weight:600; text-decoration:\${t.completed ? 'line-through' : 'none'}; color:\${t.completed ? 'var(--text-muted)' : 'white'};">\${t.title}</div>
+                <div style="display:flex; gap:6px; margin-top:4px;">
+                  <span class="tag tag-\${t.priority}">\${t.priority.toUpperCase()}</span>
+                  \${t.focusMinutesSpent ? '<span class="tag tag-p3">' + t.focusMinutesSpent + 'm focused</span>' : ''}
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-outline del-task-btn" data-id="\${t.id}" style="padding:6px 10px; font-size:0.75rem; border-color:#7f1d1d; color:#f87171;">✕</button>
+          \`;
+          list.appendChild(el);
+        });
+
+        // Checkbox events
+        document.querySelectorAll('.task-check').forEach(cb => {
+          cb.addEventListener('change', (e) => {
+            const id = e.target.dataset.id;
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+              task.completed = e.target.checked;
+              localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+              renderTasks();
+              updateTaskSelect();
+              playTone(550, 0.05);
+            }
+          });
+        });
+
+        // Delete events
+        document.querySelectorAll('.del-task-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = e.target.dataset.id;
+            tasks = tasks.filter(t => t.id !== id);
+            localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+            renderTasks();
+            updateTaskSelect();
+            playTone(300, 0.05);
+          });
+        });
+      }
+
+      // Add Task
+      document.getElementById('add-task-btn').addEventListener('click', () => {
+        const inp = document.getElementById('new-task-input');
+        const pri = document.getElementById('new-task-priority').value;
+        const val = inp.value.trim();
+        if (!val) return;
+        tasks.unshift({
+          id: 't_' + Date.now(),
+          title: val,
+          priority: pri,
+          completed: false,
+          focusMinutesSpent: 0
+        });
+        localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+        inp.value = '';
+        renderTasks();
+        updateTaskSelect();
+        playTone(600, 0.06);
+      });
+
+    })();
+  </script>
+</body>
+</html>`;
+}
+
+export function downloadStandaloneHtmlFile() {
+  const htmlContent = getStandaloneDeepFocusHtml();
+  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'DeepFocus.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}

@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Users Collection:
+    // Strictly read/write only by the authenticated user matching their own UID.
+    // No user can access or query another user's document, even with a guessed path.
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isOwner(userId) && isValidId(userId) && request.resource.data.uid == request.auth.uid;
+      allow update: if isOwner(userId) && isValidId(userId) && request.resource.data.uid == request.auth.uid;
+      allow delete: if isOwner(userId) && isValidId(userId);
+    }
+
+    // Recovery Codes Collection:
+    // Human-readable code format DF-XXXX-XXXX lookup.
+    // List/enumeration is strictly forbidden to prevent scanning/scraping codes.
+    // Direct get is permitted only for authenticated users who possess the exact code.
+    // Create/update/delete requires the authenticated user to match the uid payload.
+    match /recoveryCodes/{code} {
+      allow get: if isSignedIn() && isValidId(code);
+      allow list: if false; // Strict enumeration denial
+      allow create: if isSignedIn() && isValidId(code) && request.resource.data.uid == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(code) && (resource.data.uid == request.auth.uid || request.resource.data.uid == request.auth.uid);
+      allow delete: if isSignedIn() && isValidId(code) && resource.data.uid == request.auth.uid;
+    }
+  }
+}

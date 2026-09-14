@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Default Paper Theme */
+    --bg: #f4f0ea;
+    --surface: #e8e2d7;
+    --sub: #8a8277;
+    --text: #282420;
+    --main: #c25530;
+
+    --sat: env(safe-area-inset-top, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+  }
+
+  html, body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    overscroll-behavior-y: none;
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+
+  /* Strictly remove all generic glowing drop-shadows and glassmorphism across elements */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Tabular numbers and monospaced digits alignment */
+  .font-mono, .tabular-nums {
+    font-family: 'Space Mono', monospace;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Clean minimal flat scrollbars matching current theme */
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--sub);
+  }
+}
+
+/* iOS safe area insets */
+.ios-safe-bottom {
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+.ios-safe-top {
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+
+/* Static background dot matrix for subtle depth */
+.dot-grid-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(var(--sub) 1.25px, transparent 1.25px);
+  background-size: 24px 24px;
+  background-position: center center;
+  opacity: 0.22;
+}
+
