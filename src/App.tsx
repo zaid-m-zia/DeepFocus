@@ -160,8 +160,12 @@ export default function App() {
 
   // Focus on a specific task
   const handleStartFocusForTask = (task: Task) => {
+    const duration =
+      typeof task.estimatedDurationMin === 'number' && task.estimatedDurationMin > 0
+        ? task.estimatedDurationMin
+        : 25;
     setFocusConfig({
-      durationMin: 25,
+      durationMin: duration,
       goal: task.title,
       linkedTask: task,
       ambientSound: 'off',
@@ -198,7 +202,10 @@ export default function App() {
   };
 
   // Task Handlers
-  const handleAddTask = (newTaskData: Omit<Task, 'id' | 'createdAt' | 'focusMinutesSpent'>) => {
+  const handleAddTask = (
+    newTaskData: Omit<Task, 'id' | 'createdAt' | 'focusMinutesSpent'>,
+    startImmediately = false
+  ) => {
     const newTask: Task = {
       ...newTaskData,
       id: `task-${Date.now()}`,
@@ -209,6 +216,10 @@ export default function App() {
     setTasks(updated);
     saveTasks(updated);
     triggerCloudSync(updated, sessions, streak);
+
+    if (startImmediately) {
+      handleStartFocusForTask(newTask);
+    }
   };
 
   const handleToggleTask = (taskId: string) => {

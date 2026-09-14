@@ -5,6 +5,9 @@ export interface Task {
   title: string;
   notes?: string;
   priority: TaskPriority;
+  startDate?: string; // YYYY-MM-DD or empty
+  startTime?: string; // HH:mm or empty
+  estimatedDurationMin?: number; // Estimated duration in minutes
   dueDate?: string; // YYYY-MM-DD or empty
   completed: boolean;
   completedAt?: string;

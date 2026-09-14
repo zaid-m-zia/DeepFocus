@@ -185,10 +185,22 @@ export const FocusTab: React.FC<FocusTabProps> = ({
             <select
               value={selectedTaskId}
               onChange={(e) => {
-                setSelectedTaskId(e.target.value);
-                const task = tasks.find((t) => t.id === e.target.value);
-                if (task && (!goal || goal === 'Deep Study Session')) {
-                  setGoal(task.title);
+                const taskId = e.target.value;
+                setSelectedTaskId(taskId);
+                const task = tasks.find((t) => t.id === taskId);
+                if (task) {
+                  if (!goal || goal === 'Deep Study Session') {
+                    setGoal(task.title);
+                  }
+                  if (task.estimatedDurationMin && task.estimatedDurationMin > 0) {
+                    if ([15, 25, 50, 90].includes(task.estimatedDurationMin)) {
+                      setSelectedDuration(task.estimatedDurationMin);
+                      setIsCustomMode(false);
+                    } else {
+                      setCustomMinutes(task.estimatedDurationMin);
+                      setIsCustomMode(true);
+                    }
+                  }
                 }
               }}
               className="w-full px-3 py-2 text-xs font-mono border outline-none cursor-pointer"
