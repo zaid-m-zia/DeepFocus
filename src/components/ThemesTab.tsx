@@ -13,6 +13,7 @@ export const ThemesTab: React.FC<ThemesTabProps> = ({
   onSelectTheme,
 }) => {
   const [localThemeId, setLocalThemeId] = useState<string>(() => propThemeId || getStoredThemeId());
+  const [filterType, setFilterType] = useState<'all' | 'dark' | 'light'>('all');
 
   // Use the prop if passed, otherwise use local state
   const activeId = propThemeId || localThemeId;
@@ -36,6 +37,11 @@ export const ThemesTab: React.FC<ThemesTabProps> = ({
       onSelectTheme(theme.id);
     }
   };
+
+  const displayedThemes = THEMES.filter((t) => {
+    if (filterType === 'all') return true;
+    return t.type === filterType;
+  });
 
   return (
     <div className="space-y-6 pb-28 max-w-lg mx-auto">
@@ -112,9 +118,38 @@ export const ThemesTab: React.FC<ThemesTabProps> = ({
         </div>
       </div>
 
+      {/* Filter Tabs (All / Dark / Light) */}
+      <div className="flex items-center justify-between font-mono text-xs">
+        <span className="text-[11px]" style={{ color: 'var(--sub)' }}>
+          showing {displayedThemes.length} of {THEMES.length}
+        </span>
+        <div className="flex gap-1">
+          {(['all', 'dark', 'light'] as const).map((mode) => {
+            const isSelected = filterType === mode;
+            return (
+              <button
+                key={mode}
+                onClick={() => {
+                  setFilterType(mode);
+                  playClick();
+                }}
+                className="px-2.5 py-1 border uppercase text-[10px] font-bold transition-colors cursor-pointer"
+                style={{
+                  backgroundColor: isSelected ? 'var(--main)' : 'var(--surface)',
+                  color: isSelected ? 'var(--bg)' : 'var(--sub)',
+                  borderColor: isSelected ? 'var(--main)' : 'var(--surface)',
+                }}
+              >
+                {mode}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Grid of All Themes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {THEMES.map((theme) => {
+        {displayedThemes.map((theme) => {
           const isActive = theme.id === activeId;
 
           return (
