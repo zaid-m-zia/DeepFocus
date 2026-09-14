@@ -34,6 +34,7 @@ import { ActiveFocusMode } from './components/ActiveFocusMode';
 import { AirDropModal } from './components/AirDropModal';
 import { SettingsModal } from './components/SettingsModal';
 import { PWAInstallButton } from './components/PWAInstallButton';
+import { ScrollFaviconIndicator } from './components/ScrollFaviconIndicator';
 import { playClick, triggerHaptic } from './utils/audio';
 
 export default function App() {
@@ -280,6 +281,9 @@ export default function App() {
     >
       {/* Static Background Dot Matrix Pattern */}
       <div className="dot-grid-bg" aria-hidden="true" />
+
+      {/* Dynamic DeepFocus Favicon Scroll Indicator */}
+      <ScrollFaviconIndicator />
 
       {/* Unlocked Badge Notification Banner */}
       {unlockedBadgeBanner && (

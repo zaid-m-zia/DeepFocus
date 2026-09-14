@@ -154,6 +154,24 @@ export function getThemeById(id: string): Theme {
   return THEMES.find((t) => t.id === id) || THEMES[0];
 }
 
+export function updateBrowserFavicon(theme: Theme): void {
+  if (typeof document === 'undefined') return;
+  const link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
+  if (!link) return;
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+    <rect width="512" height="512" rx="128" fill="${theme.bg}" />
+    <circle cx="256" cy="256" r="170" fill="none" stroke="${theme.sub}" stroke-width="28" stroke-dasharray="24 16" stroke-opacity="0.45" />
+    <circle cx="256" cy="256" r="170" fill="none" stroke="${theme.main}" stroke-width="34" stroke-linecap="round" stroke-dasharray="460 540" />
+    <circle cx="256" cy="256" r="110" fill="none" stroke="${theme.sub}" stroke-width="20" stroke-opacity="0.4" />
+    <circle cx="256" cy="256" r="54" fill="${theme.main}" />
+    <circle cx="256" cy="256" r="20" fill="${theme.bg}" />
+  </svg>`;
+
+  const encoded = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  link.href = encoded;
+}
+
 export function applyTheme(theme: Theme): void {
   if (typeof document === 'undefined') return;
   const root = document.documentElement;
@@ -178,6 +196,8 @@ export function applyTheme(theme: Theme): void {
   if (metaTheme) {
     metaTheme.setAttribute('content', theme.bg);
   }
+
+  updateBrowserFavicon(theme);
 }
 
 export function initTheme(): Theme {
