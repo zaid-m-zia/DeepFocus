@@ -22,11 +22,11 @@ function getAudioContext(): AudioContext {
 export function triggerHaptic(type: 'light' | 'medium' | 'heavy' | 'warning' | 'success' = 'light') {
   if (typeof window !== 'undefined' && 'vibrate' in navigator) {
     try {
-      if (type === 'light') navigator.vibrate(10);
-      else if (type === 'medium') navigator.vibrate(25);
-      else if (type === 'heavy') navigator.vibrate(45);
-      else if (type === 'warning') navigator.vibrate([40, 60, 40]);
-      else if (type === 'success') navigator.vibrate([30, 40, 30, 40, 70]);
+      if (type === 'light') navigator.vibrate(35);
+      else if (type === 'medium') navigator.vibrate(55);
+      else if (type === 'heavy') navigator.vibrate(85);
+      else if (type === 'warning') navigator.vibrate([60, 50, 60]);
+      else if (type === 'success') navigator.vibrate([45, 50, 45, 50, 90]);
     } catch {
       // Vibration may be restricted or unsupported on some devices
     }
@@ -36,21 +36,44 @@ export function triggerHaptic(type: 'light' | 'medium' | 'heavy' | 'warning' | '
 export function playClick() {
   try {
     const ctx = getAudioContext();
+    const now = ctx.currentTime;
+
+    // Crisp mechanical click: dual-layer transient (punch + resonant pop)
+    // 1. High transient burst for crisp tactile click
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(600, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.04);
+    osc.frequency.setValueAtTime(950, now);
+    osc.frequency.exponentialRampToValueAtTime(240, now + 0.055);
 
-    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+    // Significantly increased gain for clear audibility
+    gain.gain.setValueAtTime(0.38, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
-    osc.start();
-    osc.stop(ctx.currentTime + 0.04);
+    osc.start(now);
+    osc.stop(now + 0.06);
+
+    // 2. Subtle low-mid body thud for tactile keyboard-switch presence
+    const subOsc = ctx.createOscillator();
+    const subGain = ctx.createGain();
+
+    subOsc.type = 'triangle';
+    subOsc.frequency.setValueAtTime(280, now);
+    subOsc.frequency.exponentialRampToValueAtTime(90, now + 0.045);
+
+    subGain.gain.setValueAtTime(0.28, now);
+    subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
+    subOsc.connect(subGain);
+    subGain.connect(ctx.destination);
+
+    subOsc.start(now);
+    subOsc.stop(now + 0.05);
+
     triggerHaptic('light');
   } catch {
     // AudioContext might be blocked until user gesture
